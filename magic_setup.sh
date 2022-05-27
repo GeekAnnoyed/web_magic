@@ -23,7 +23,7 @@ phpize
 make install clean
 
 #auto install to highest installed version of php
-highestPHP=(etc/php/*)
+highestPHP=(/etc/php/*)
 
 echo "extension=brotli.so" > "etc/php/"${highestPHP[-1]##*/}"/mods-available/brotli.ini"
 
@@ -39,29 +39,17 @@ cd /root
 
 ## setup temp directory
 mkdir /root/.temp
-cd /root/.temp
+cd /root/
+git clone https://github.com/GeekAnnoyed/web_magic.git
 
-## get config files and copy to proper locations
-wget https://config.nxps.me/nginx/default
-wget https://config.nxps.me/nginx/mime.types
-wget https://config.nxps.me/nginx/nginx.conf
-wget https://config.nxps.me/nginx/whitelist.conf
-wget https://config.nxps.me/nginx/wp-supercache.conf
-wget https://config.nxps.me/php/php.ini
-wget https://config.nxps.me/ssh/sshd_config
-wget https://config.nxps.me/ssh/generic-key.pub
+cp /root/web_magic/default /etc/nginx/sites-available/default
+cp /root/web_magic/mime.types /etc/nginx/mime.types
+cp /root/web_magic/nginx.conf /etc/nginx/nginx.conf
+cp /root/web_magic/whitelist.conf /etc/nginx/whitelist.conf
+cp /root/web_magic/php.ini /etc/php/7.4/fpm/php.ini
+cp /root/web_magic/wp-supercache.conf /etc/nginx/snippets/wp-supercache.conf
+cp /root/web_magic/sshd_config /etc/ssh/sshd_config
 
-cp /root/.temp/default /etc/nginx/sites-available/default
-cp /root/.temp/mime.types /etc/nginx/mime.types
-cp /root/.temp/nginx.conf /etc/nginx/nginx.conf
-cp /root/.temp/whitelist.conf /etc/nginx/whitelist.conf
-cp /root/.temp/php.ini /etc/php/7.4/fpm/php.ini
-cp /root/.temp/wp-supercache.conf /etc/nginx/snippets/wp-supercache.conf
-cp /root/.temp/sshd_config /etc/ssh/sshd_config
-
-mkdir /root/.ssh
-cp /root/.temp/generic-key.pub /root/.ssh/authorized_keys
-chmod 600 /root/.ssh/authorized_keys
 
 ## clean up temp files
 cd /root
