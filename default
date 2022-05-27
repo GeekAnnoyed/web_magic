@@ -1,0 +1,49 @@
+server {
+	listen 80;
+	listen [::]:80 ipv6only=on;
+	#server_name www.yourdomain.ext yourdomain.ext;
+	#return 301 https://www.yourdomain.ext$request_uri;
+}
+server {
+	listen 443 ssl;
+	listen [::]:443 ipv6only=on ssl;
+	keepalive_timeout 70;
+
+	#server_name www.yourdomain.ext yourdomain.ext;
+	#ssl_certificate sslcert.pem;
+	#ssl_certificate_key sslcert.key;
+
+	#root /var/www/sitedir/;
+	index index.php;
+
+	add_header Strict-Transport-Security "max-age=15768000; includeSubDomains;";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-Content-Type-Options nosniff;
+
+	include snippets/wp-supercache.conf;
+
+	location = /favicon.ico { log_not_found off; access_log off; }
+	location = /robots.txt { allow all; log_not_found off; access_log off; }
+	location ~ /\. { deny all; }
+	location ~* /(?:uploads|files)/.*\.php$ { deny all; }
+	location / { try_files $cachefile $uri $uri/ /index.php?q=$uri&$args; }
+	location ~*  \.(ico|pdf|flv|jpg|jpeg|png|gif|js|css|swf|svg|ttf|woff2)$ { expires 365d; log_not_found off; }
+	location ~ ^/\.user\.ini { deny all; }
+
+
+	error_page 404 /404.html;
+	error_page 500 502 503 504 /50x.html;
+	location = /50x.html { root /usr/share/nginx/html; }
+
+	location ~ \.php$ {
+		fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		fastcgi_buffers 16 16k;
+		fastcgi_buffer_size 32k;
+		include fastcgi_params;
+		include snippets/fastcgi-php.conf;
+	}
+
+	location ~ /\.ht { deny all; }
+}
