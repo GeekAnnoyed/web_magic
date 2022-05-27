@@ -1,0 +1,26 @@
+#!/bin/bash -e
+clear
+
+#get wp-config details
+echo
+echo "Database Name: "
+read -e dbname
+echo "Database User: "
+read -e dbuser
+echo "Database Password: "
+read -s dbpass
+
+#create mysql database
+mysql -e "create database ${dbname};"
+#create mysql user
+mysql -e "create user '${dbuser}'@'%' identified by '${dbpass}';"
+#set mysql permissions & flush privileges
+mysql -e "grant all privileges on ${dbname}.* to '${dbuser}'@'%';"
+mysql -e "flush privileges;"
+
+#complete
+echo
+echo "============================================"
+echo "       Database Creation Is Complete"
+echo "============================================"
+echo

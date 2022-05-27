@@ -1,0 +1,111 @@
+#!/bin/bash -e
+clear
+
+echo "=================================================="
+echo "               Installing WordPress"
+echo "=================================================="
+
+#get install dir
+echo
+echo "Install Directory: "
+read -e instdir
+
+if [ -d "$instdir" ]; then
+	echo
+	echo "Directory Exists."
+	exit
+fi
+
+#get wp-config details
+echo
+echo "Database Name: "
+read -e dbname
+echo "Database User: "
+read -e dbuser
+echo "Database Password: "
+read -s dbpass
+
+#ok to install?
+until [ "$letsgo" == "yes" ]
+do
+	echo
+	echo "OK To Install?  Yes / No"
+	read -e letsgo
+	letsgo=${letsgo,,}
+
+done
+
+#installing
+echo
+echo "=================================================="
+echo "       Please Wait While WordPress Installs"
+echo "=================================================="
+echo
+
+#create destination
+mkdir $instdir
+
+if [ -d "/root/.temp" ]; then
+	#change dir to temp
+	cd /root/.temp
+else
+	#create temp dir
+	mkdir /root/.temp
+	#change dir to temp
+	cd /root/.temp
+fi
+
+#download wordpress
+curl -O https://wordpress.org/latest.tar.gz
+#unzip wordpress
+tar -zxvf latest.tar.gz
+#change dir to wordpress
+cd wordpress
+#copy files to destination
+cp -rf . $instdir
+#move back to temp
+cd /root/.temp
+#clean up temp dir
+rm -rf *
+
+#move to wordpress dir
+cd $instdir
+#create wp config
+cp wp-config-sample.php wp-config.php
+#set database details with perl find and replace
+perl -pi -e "s/database_name_here/$dbname/g" wp-config.php
+perl -pi -e "s/username_here/$dbuser/g" wp-config.php
+perl -pi -e "s/password_here/$dbpass/g" wp-config.php
+
+#set WP salts
+perl -i -pe'
+  BEGIN {
+    @chars = ("a" .. "z", "A" .. "Z", 0 .. 9);
+    push @chars, split //, "!@#$%^&*()-_ []{}<>~\`+=,.;:/?|";
+    sub salt { join "", map $chars[ rand @chars ], 1 .. 64 }
+  }
+  s/put your unique phrase here/salt()/ge
+' wp-config.php
+
+#create uploads folder and set permissions
+mkdir wp-content/uploads
+chmod 775 wp-content/uploads
+
+#change ownership
+chown -R www-data:www-data $instdir
+cd /root
+
+#create mysql database
+mysql -e "create database ${dbname};"
+#create mysql user
+mysql -e "create user '${dbuser}'@'localhost' identified by '${dbpass}';"
+#set mysql permissions & flush privileges
+mysql -e "grant all privileges on ${dbname}.* to '${dbuser}'@'localhost';"
+mysql -e "flush privileges;"
+
+#complete
+echo
+echo "============================================"
+echo "     WordPress Installation Is Complete"
+echo "============================================"
+echo
