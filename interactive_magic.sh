@@ -72,9 +72,7 @@ function PHP(
 
 function unattended_upgrades(
 # # reconfigure to automatically install updates
-    
     $SUDO dpkg-reconfigure --priority=low unattended-upgrades
-
 )
 
 
@@ -113,3 +111,75 @@ function nginx(
     cp $workingDir/configs/sshd_config /etc/ssh/sshd_config
 )
 
+function wordpress(
+    # wordpress install
+
+
+
+
+
+    #create destination
+    mkdir $instdir
+    # Create a temporary directory and store its name in a variable.
+    TEMPD=$(mktemp -d)
+
+    # Exit if the temp directory wasn't created successfully.
+    if [ ! -e "$TEMPD" ]; then
+        >&2 echo "Failed to create temp directory"
+        exit 1
+    fi
+
+    # Make sure the temp directory gets removed on script exit.
+    trap "exit 1"           HUP INT PIPE QUIT TERM
+    trap 'rm -rf "$TEMPD"'  EXIT
+    cd $TEMPD
+
+    #download wordpress
+    curl -O https://wordpress.org/latest.tar.gz
+    #unzip wordpress
+    tar -zxvf latest.tar.gz
+    #change dir to wordpress
+    cd wordpress
+    #copy files to destination
+    cp -rf . $instdir
+    #move back to temp
+    cd /root/.temp
+    #clean up temp dir
+    rm -rf *
+
+    #move to wordpress dir
+    cd $instdir
+    #create wp config
+    cp wp-config-sample.php wp-config.php
+    #set database details with perl find and replace
+    perl -pi -e "s/database_name_here/$dbname/g" wp-config.php
+    perl -pi -e "s/username_here/$dbuser/g" wp-config.php
+    perl -pi -e "s/password_here/$dbpass/g" wp-config.php
+
+    #set WP salts
+    perl -i -pe'
+    BEGIN {
+        @chars = ("a" .. "z", "A" .. "Z", 0 .. 9);
+        push @chars, split //, "!@#$%^&*()-_ []{}<>~\`+=,.;:/?|";
+        sub salt { join "", map $chars[ rand @chars ], 1 .. 64 }
+    }
+    s/put your unique phrase here/salt()/ge
+    ' wp-config.php
+
+    #create uploads folder and set permissions
+    mkdir wp-content/uploads
+    chmod 775 wp-content/uploads
+
+    #change ownership
+    chown -R www-data:www-data $instdir
+    cd /root
+
+    #create mysql database
+    mysql -e "create database ${dbname};"
+    #create mysql user
+    mysql -e "create user '${dbuser}'@'localhost' identified by '${dbpass}';"
+    #set mysql permissions & flush privileges
+    mysql -e "grant all privileges on ${dbname}.* to '${dbuser}'@'localhost';"
+    mysql -e "flush privileges;"
+
+)
