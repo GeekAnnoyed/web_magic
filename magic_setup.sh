@@ -1,4 +1,6 @@
 #!/bin/bash
+
+pull in php 8.x from that debian repo
 clear
 
 ## update server
@@ -24,13 +26,10 @@ make install clean
 
 #auto install to highest installed version of php
 highestPHP=(/etc/php/*)
-
 echo "extension=brotli.so" > "etc/php/"${highestPHP[-1]##*/}"/mods-available/brotli.ini"
 
 phpenmod brotli
 apt purge php-dev -y && apt autoremove -y && apt clean
-
-cd /root
 
 ## database - enable if you are installing a DB on this server
 #apt install mariadb-server -y && apt clean
