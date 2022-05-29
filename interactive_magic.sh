@@ -1,29 +1,84 @@
 #/bin/bash
-workingDir='pwd'
+
+workingDir=$(pwd)
+
+echo "this script needs to run as root, if the current user is not root it will ask for the user password for sudo user privilage escalation."
+whiptail --title "root or sudo required" --msgbox "this script needs to run as root, if the current user is not root I will ask for the user password for sudo user privilage escalation." 10 60
 
 SUDO=''
 if (( $EUID != 0 )); then
     SUDO='sudo'
 fi
-whiptail --title "root or sudo required" --msgbox "this script needs to run as root, if the current user is not root I will ask for the user password for sudo user privilage escalation." 10 60
 
+# install required packages 
+#TODO fix so only required packages are installed for each function
+
+# $SUDO apt whiptail install ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
+    
+tempfile=$(mktemp)
+trap 'rm -f "$tempfile"' EXIT
+
+if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
+    "Choose Install and configuration tasks" 20 100 10 \
+    "unattended_upgrades" "Install security updates and reboot at 2am if needed" ON \
+    "PHP" "Newer PHP packages from sury.org" ON \
+    "Brotli" "Brotli, build (git), install and activate" ON \
+    "MYSQL" "Install mariadb and run secure_mysql" ON \
+    "NGINX" "Set 'sane' defaults for nginx" ON \
+    "WordPress" "install and configure Wordpress" OFF
+    )   
+    then
+        mapfile -t choices <<< "$TASKS"
+        printf 'You chose:\n'
+        printf '  %s\n' "${choices[@]}"
+    else
+        printf >&2 'Aborted\n'
+        exit 1
+    fi
+
+    if [[ "$TASKS" == *"unattended_upgrades"* ]]; then
+        # execute unattended_upgrades function
+        unattended_upgrades
+    fi
+    if [[ "$TASKS" == *"PHP"* ]]; then
+        # execute PHP function
+        PHP 
+    fi
+    if [[ "$TASKS" == *"Brotli"* ]]; then
+        # execute Brotli function
+        Brotli
+    fi
+    if [[ "$TASKS" == *"MYSQL"* ]]; then
+        # execute MYSQL function
+        mysql
+    fi
+    if [[ "$TASKS" == *"NGINX"* ]]; then
+        # execute NGINX function
+        nginx
+    fi
+    if [[ "$TASKS" == *"WordPress"* ]]; then
+        # execute Wordpress function
+        wordpress
+    fi
+
+
+function PHP(
 # setup sury.org php repo, get required gpg key, pull in any updates to repo listings
-$SUDO sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
-$SUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
-$SUDO apt-get update
+    $SUDO sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+    $SUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
+    $SUDO apt-get update
+)
 
-# install any required packages
-$SUDO apt install ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
 
-# install the required gpg key
-# reconfigure to automatically install updates
-if (whiptail --title "setup automatic unattended upgrades" --yes-button "Yes" --no-button "No"  --yesno "Setup automatic unattended upgrades?" 10 60) then
+function unattended_upgrades(
+# # reconfigure to automatically install updates
+    
     $SUDO dpkg-reconfigure --priority=low unattended-upgrades
-else
-    continue
-fi
 
-if (whiptail --title "build and install brotli PHP extention" --yes-button "Yes" --no-button "No"  --yesno "build and install brotli PHP extention?" 10 60) then
+)
+
+
+function brotli(
     ## install php-ext-brotli
     apt install php-dev -y
     cd /etc/php
@@ -36,25 +91,19 @@ if (whiptail --title "build and install brotli PHP extention" --yes-button "Yes"
     #auto install to highest installed version of php
     highestPHP=(/etc/php/*)
     echo "extension=brotli.so" > "etc/php/"${highestPHP[-1]##*/}"/mods-available/brotli.ini"
-
     phpenmod brotli
     apt purge php-dev -y && apt autoremove -y && apt clean
 
-else
-    continue
-fi
+)
 
 
-if (whiptail --title "install mariadb and secure mysql?" --yes-button "Yes" --no-button "No"  --yesno "install mariadb and secure mysql?" 10 60) then
+function mysql(
     $SUDO apt install mariadb-server -y 
     $SUDO apt clean
     $SUDO mysql_secure_installation
-else
-    continue
-fi
+)
 
-
-if (whiptail --title "Copy sane defaults for nginx?" --yes-button "Yes" --no-button "No"  --yesno "Copy sane defaults for nginx?" 10 60) then
+function nginx(
     cp $workingDir/configs/default /etc/nginx/sites-available/default
     cp $workingDir/configs/mime.types /etc/nginx/mime.types
     cp $workingDir/configs/nginx.conf /etc/nginx/nginx.conf
@@ -62,8 +111,5 @@ if (whiptail --title "Copy sane defaults for nginx?" --yes-button "Yes" --no-but
     cp $workingDir/configs/php.ini /etc/php/7.4/fpm/php.ini
     cp $workingDir/configs/wp-supercache.conf /etc/nginx/snippets/wp-supercache.conf
     cp $workingDir/configs/sshd_config /etc/ssh/sshd_config
-
-else
-    continue
-fi
+)
 
