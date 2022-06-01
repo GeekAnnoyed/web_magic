@@ -13,7 +13,7 @@ fi
 # install required packages 
 #TODO fix so only required packages are installed for each function
 
-# $SUDO apt whiptail install ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
+$SUDO apt whiptail install ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
     
 tempfile=$(mktemp)
 trap 'rm -f "$tempfile"' EXIT
@@ -25,7 +25,7 @@ if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
     "Brotli" "Brotli, build (git), install and activate" ON \
     "MYSQL" "Install mariadb and run secure_mysql" ON \
     "NGINX" "Set 'sane' defaults for nginx" ON \
-    "WordPress" "install and configure Wordpress" OFF
+    "WordPress" "install and configure Wordpress" ON
     )   
     then
         mapfile -t choices <<< "$TASKS"
@@ -58,6 +58,48 @@ if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
     fi
     if [[ "$TASKS" == *"WordPress"* ]]; then
         # execute Wordpress function
+        DBNAME=''
+        DBPASS=''
+        DBUSER=''
+
+        DBNAME=$(whiptail --inputbox "What is would you like as your DB name? Leave bank for random" 8 39 --title "database name" 3>&1 1>&2 2>&3)
+        DBUSER=$(whiptail --inputbox "What would you like as database username? leave blank for random" 8 39 --title "database username" 3>&1 1>&2 2>&3)
+        DBPASS=$(whiptail --inputbox "what wouuld you like as the database password? leave blank for random" 8 39 --title "database pasword" 3>&1 1>&2 2>&3)
+
+        if [[ -n $DBNAME ]];
+        then
+            
+            echo "Not generating DBNAME"
+        else
+            echo "random DBNAME made"
+            DBNAME=$(date +%s | sha256sum | base64 | head -c 32)
+            echo $DBNAME
+            
+        fi
+
+        if [[ -n $DBPASS ]];
+        then
+
+            echo "Not generating DBPASS"
+        else
+            echo "random DBPASS made"
+            DBUSER=$(date +%s | sha256sum | base64 | head -c 32)
+            echo $DBUSER            
+        fi
+
+        if [[ -n $DBPASS ]];
+        then
+            echo "not generating DBUSER"
+
+        else
+            echo "random DBUSER made"
+            DBPASS=$(date | md5sum)
+            echo $DBPASS
+            
+        fi
+
+        
+
         wordpress
     fi
 
@@ -113,8 +155,8 @@ function nginx(
 
 function wordpress(
     # wordpress install
-
-
+    # required varibles for wordpress
+    # DBname, DBuser, DBPassword, 
 
 
 
@@ -151,10 +193,11 @@ function wordpress(
     cd $instdir
     #create wp config
     cp wp-config-sample.php wp-config.php
+
     #set database details with perl find and replace
-    perl -pi -e "s/database_name_here/$dbname/g" wp-config.php
-    perl -pi -e "s/username_here/$dbuser/g" wp-config.php
-    perl -pi -e "s/password_here/$dbpass/g" wp-config.php
+    perl -pi -e "s/database_name_here/$DBNAME/g" wp-config.php
+    perl -pi -e "s/username_here/$DBUSER/g" wp-config.php
+    perl -pi -e "s/password_here/$DBPASS/g" wp-config.php
 
     #set WP salts
     perl -i -pe'
