@@ -18,90 +18,6 @@ $SUDO apt whiptail install ssh ntp git curl nginx php-fpm php-mysql php-mbstring
 tempfile=$(mktemp)
 trap 'rm -f "$tempfile"' EXIT
 
-if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
-    "Choose Install and configuration tasks" 20 100 10 \
-    "unattended_upgrades" "Install security updates and reboot at 2am if needed" ON \
-    "PHP" "Newer PHP packages from sury.org" ON \
-    "Brotli" "Brotli, build (git), install and activate" ON \
-    "MYSQL" "Install mariadb and run secure_mysql" ON \
-    "NGINX" "Set 'sane' defaults for nginx" ON \
-    "WordPress" "install and configure Wordpress" ON
-    )   
-    then
-        mapfile -t choices <<< "$TASKS"
-        printf 'You chose:\n'
-        printf '  %s\n' "${choices[@]}"
-    else
-        printf >&2 'Aborted\n'
-        exit 1
-    fi
-
-    if [[ "$TASKS" == *"unattended_upgrades"* ]]; then
-        # execute unattended_upgrades function
-        unattended_upgrades
-    fi
-    if [[ "$TASKS" == *"PHP"* ]]; then
-        # execute PHP function
-        PHP 
-    fi
-    if [[ "$TASKS" == *"Brotli"* ]]; then
-        # execute Brotli function
-        Brotli
-    fi
-    if [[ "$TASKS" == *"MYSQL"* ]]; then
-        # execute MYSQL function
-        mysql
-    fi
-    if [[ "$TASKS" == *"NGINX"* ]]; then
-        # execute NGINX function
-        nginx
-    fi
-    if [[ "$TASKS" == *"WordPress"* ]]; then
-        # execute Wordpress function
-        DBNAME=''
-        DBPASS=''
-        DBUSER=''
-
-        DBNAME=$(whiptail --inputbox "What is would you like as your DB name? Leave bank for random" 8 39 --title "database name" 3>&1 1>&2 2>&3)
-        DBUSER=$(whiptail --inputbox "What would you like as database username? leave blank for random" 8 39 --title "database username" 3>&1 1>&2 2>&3)
-        DBPASS=$(whiptail --inputbox "what wouuld you like as the database password? leave blank for random" 8 39 --title "database pasword" 3>&1 1>&2 2>&3)
-
-        if [[ -n $DBNAME ]];
-        then
-            
-            echo "Not generating DBNAME"
-        else
-            echo "random DBNAME made"
-            DBNAME=$(date +%s | sha256sum | base64 | head -c 32)
-            echo $DBNAME
-            
-        fi
-
-        if [[ -n $DBPASS ]];
-        then
-
-            echo "Not generating DBPASS"
-        else
-            echo "random DBPASS made"
-            DBUSER=$(date +%s | sha256sum | base64 | head -c 32)
-            echo $DBUSER            
-        fi
-
-        if [[ -n $DBPASS ]];
-        then
-            echo "not generating DBUSER"
-
-        else
-            echo "random DBUSER made"
-            DBPASS=$(date | md5sum)
-            echo $DBPASS
-            
-        fi
-
-        
-
-        wordpress
-    fi
 
 
 function PHP(
@@ -218,11 +134,99 @@ function wordpress(
     cd /root
 
     #create mysql database
-    mysql -e "create database ${dbname};"
+    mysql -e "create database ${DBNAME};"
     #create mysql user
-    mysql -e "create user '${dbuser}'@'localhost' identified by '${dbpass}';"
+    mysql -e "create user '${DBUSER}'@'localhost' identified by '${DBPASS}';"
     #set mysql permissions & flush privileges
-    mysql -e "grant all privileges on ${dbname}.* to '${dbuser}'@'localhost';"
+    mysql -e "grant all privileges on ${DBNAME}.* to '${DDNAME}'@'localhost';"
     mysql -e "flush privileges;"
 
 )
+
+
+
+if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
+    "Choose Install and configuration tasks" 20 100 10 \
+    "unattended_upgrades" "Install security updates and reboot at 2am if needed" ON \
+    "PHP" "Newer PHP packages from sury.org" ON \
+    "Brotli" "Brotli, build (git), install and activate" ON \
+    "MYSQL" "Install mariadb and run secure_mysql" ON \
+    "NGINX" "Set 'sane' defaults for nginx" ON \
+    "WordPress" "install and configure Wordpress" ON
+    )   
+    then
+        mapfile -t choices <<< "$TASKS"
+        printf 'You chose:\n'
+        printf '  %s\n' "${choices[@]}"
+    else
+        printf >&2 'Aborted\n'
+        exit 1
+    fi
+
+    if [[ "$TASKS" == *"unattended_upgrades"* ]]; then
+        # execute unattended_upgrades function
+        unattended_upgrades
+    fi
+    if [[ "$TASKS" == *"PHP"* ]]; then
+        # execute PHP function
+        PHP 
+    fi
+    if [[ "$TASKS" == *"Brotli"* ]]; then
+        # execute Brotli function
+        Brotli
+    fi
+    if [[ "$TASKS" == *"MYSQL"* ]]; then
+        # execute MYSQL function
+        mysql
+    fi
+    if [[ "$TASKS" == *"NGINX"* ]]; then
+        # execute NGINX function
+        nginx
+    fi
+    if [[ "$TASKS" == *"WordPress"* ]]; then
+        # execute Wordpress function
+        DBNAME=''
+        DBPASS=''
+        DBUSER=''
+
+        DBNAME=$(whiptail --inputbox "What is would you like as your DB name? Leave bank for random" 8 39 --title "database name" 3>&1 1>&2 2>&3)
+        DBUSER=$(whiptail --inputbox "What would you like as database username? leave blank for random" 8 39 --title "database username" 3>&1 1>&2 2>&3)
+        DBPASS=$(whiptail --inputbox "what wouuld you like as the database password? leave blank for random" 8 39 --title "database pasword" 3>&1 1>&2 2>&3)
+
+        if [[ -n $DBNAME ]];
+        then
+            
+            echo "Not generating DBNAME"
+        else
+            echo "random DBNAME made"
+            DBNAME=$(date +%s | sha256sum | base64 | head -c 32)
+            echo $DBNAME
+            
+        fi
+
+        if [[ -n $DBPASS ]];
+        then
+
+            echo "Not generating DBPASS"
+        else
+            echo "random DBPASS made"
+            DBUSER=$(date +%s | sha256sum | base64 | head -c 32)
+            echo $DBUSER            
+        fi
+
+        if [[ -n $DBPASS ]];
+        then
+            echo "not generating DBUSER"
+
+        else
+            echo "random DBUSER made"
+            DBPASS=$(date | md5sum)
+            echo $DBPASS
+            
+        fi
+
+        
+
+        wordpress
+    fi
+
