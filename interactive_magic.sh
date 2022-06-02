@@ -41,19 +41,19 @@ function unattended_upgrades {
 
 function brotli {
     ## install php-ext-brotli
-    apt install php-dev -y
-    cd /etc/php
+    $doSUDO apt install php-dev -y
+    mkdir php
     git clone --recursive --depth=1 https://github.com/kjdev/php-ext-brotli.git
     cd php-ext-brotli
     phpize
     ./configure
-    make install clean
+    $doSUDO make install clean
 
     #auto install to highest installed version of php
     highestPHP=(/etc/php/*)
-    echo "extension=brotli.so" > "etc/php/"${highestPHP[-1]##*/}"/mods-available/brotli.ini"
-    phpenmod brotli
-    apt purge php-dev -y && apt autoremove -y && apt clean
+    $doSUDO echo "extension=brotli.so" > "etc/php/"${highestPHP[-1]##*/}"/mods-available/brotli.ini"
+    $doSUDO phpenmod brotli
+    $doSUDO apt purge php-dev -y && apt autoremove -y && apt clean
 
 }
 
