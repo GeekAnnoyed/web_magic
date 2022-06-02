@@ -103,7 +103,7 @@ function wordpress {
     $doSUDO rm -rf $TEMPD
 
     #move to wordpress dir
-    cd $instdir
+    cd $INSTLLOCAL
     #create wp config
     cp wp-config-sample.php wp-config.php
 
@@ -127,7 +127,7 @@ function wordpress {
     $doSUDO chmod 775 wp-content/uploads
 
     #change ownership
-    $doSUDO chown -R www-data:www-data $instdir
+    $doSUDO chown -R www-data:www-data $INSTLLOCAL
     
     #create mysql database
     $doSUDO mysql -e "create database ${DBNAME};"
