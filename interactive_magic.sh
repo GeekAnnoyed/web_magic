@@ -1,11 +1,12 @@
 #/bin/bash
 
-if [ ! -f (which whiptail)]
+
+FILE=$(which whiptail)
+if ! [ -f "$FILE" ]
 then
-   echo "I need whiptail to run $apt install whiptail # then run me again"
-else
-    continue
+    echo "File $FILE does not exist"
 fi
+
 
 SUDO=''
 if (( $EUID != 0 )); then
@@ -103,9 +104,9 @@ function wordpress(
     #change dir to wordpress
     cd wordpress
     #copy files to destination
-    cp -rf . $INSTLLOCAL
+    $SUDO cp -rf . $INSTLLOCAL
     #clean up temp dir
-    rm -rf $TEMPD
+    $SUDO rm -rf $TEMPD
 
     #move to wordpress dir
     cd $instdir
@@ -128,20 +129,19 @@ function wordpress(
     ' wp-config.php
 
     #create uploads folder and set permissions
-    mkdir wp-content/uploads
-    chmod 775 wp-content/uploads
+    $SUDO mkdir wp-content/uploads
+    $SUDO chmod 775 wp-content/uploads
 
     #change ownership
-    chown -R www-data:www-data $instdir
-    cd /root
-
+    $SUDO chown -R www-data:www-data $instdir
+    
     #create mysql database
-    mysql -e "create database ${DBNAME};"
+    $SUDO mysql -e "create database ${DBNAME};"
     #create mysql user
-    mysql -e "create user '${DBUSER}'@'localhost' identified by '${DBPASS}';"
+    $SUDO mysql -e "create user '${DBUSER}'@'localhost' identified by '${DBPASS}';"
     #set mysql permissions & flush privileges
-    mysql -e "grant all privileges on ${DBNAME}.* to '${DDNAME}'@'localhost';"
-    mysql -e "flush privileges;"
+    $SUDO mysql -e "grant all privileges on ${DBNAME}.* to '${DDNAME}'@'localhost';"
+    $SUDO mysql -e "flush privileges;"
 
 )
 
