@@ -1,14 +1,16 @@
 #/bin/bash
 
+SUDO=''
+if (( $EUID != 0 )); then
+    SUDO='sudo'
+fi
+
+
 workingDir=$(pwd)
 
 echo "this script needs to run as root, if the current user is not root it will ask for the user password for sudo user privilage escalation."
 whiptail --title "root or sudo required" --msgbox "this script needs to run as root, if the current user is not root I will ask for the user password for sudo user privilage escalation." 10 60
 
-SUDO=''
-if (( $EUID != 0 )); then
-    SUDO='sudo'
-fi
 
 # install required packages 
 #TODO fix so only required packages are installed for each function
