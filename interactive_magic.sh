@@ -23,8 +23,8 @@ whiptail --title "root or sudo required" --msgbox "this script needs to run as r
 
 # install required packages 
 #TODO fix so only required packages are installed for each function
-
-$SUDO apt install whiptail install ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
+#
+$SUDO apt install whiptail ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
     
 tempfile=$(mktemp)
 trap 'rm -f "$tempfile"' EXIT
