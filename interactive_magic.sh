@@ -99,11 +99,9 @@ function wordpress(
     #change dir to wordpress
     cd wordpress
     #copy files to destination
-    cp -rf . $instdir
-    #move back to temp
-    cd /root/.temp
+    cp -rf . $INSTLLOCAL
     #clean up temp dir
-    rm -rf *
+    rm -rf $TEMPD
 
     #move to wordpress dir
     cd $instdir
@@ -192,7 +190,7 @@ if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
         DBNAME=$(whiptail --inputbox "What is would you like as your DB name? Leave bank for random" 8 39 --title "database name" 3>&1 1>&2 2>&3)
         DBUSER=$(whiptail --inputbox "What would you like as database username? leave blank for random" 8 39 --title "database username" 3>&1 1>&2 2>&3)
         DBPASS=$(whiptail --inputbox "what wouuld you like as the database password? leave blank for random" 8 39 --title "database pasword" 3>&1 1>&2 2>&3)
-
+        INSTLLOCAL=$(whiptail --inputbox "Where would you like to install Wordpress?" 8 39 --title "Install location" 3>&1 1>&2 2>&3)
         if [[ -n $DBNAME ]];
         then
             
