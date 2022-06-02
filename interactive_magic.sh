@@ -97,6 +97,7 @@ function wordpress {
     tar -zxvf latest.tar.gz
     #change dir to wordpress
     cd wordpress
+    $doSUDO mkdir $INSTLLOCAL -p
     #copy files to destination
     $doSUDO cp -rf . $INSTLLOCAL
     #clean up temp dir
