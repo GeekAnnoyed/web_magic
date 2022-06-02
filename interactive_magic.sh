@@ -8,40 +8,38 @@ then
 fi
 
 
-SUDO=''
+dodoSUDO=''
 if (( $EUID != 0 )); then
-    SUDO='sudo'
+    doSUDO='sudo'
 fi
 
-$SUDO apt install whiptail -y
+$doSUDO apt install whiptail -y
 
 workingDir=$(pwd)
 
-echo "this script needs to run as root, if the current user is not root it will ask for the user password for sudo user privilage escalation."
-whiptail --title "root or sudo required" --msgbox "this script needs to run as root, if the current user is not root I will ask for the user password for sudo user privilage escalation." 10 60
+echo "this script needs to run as root, if the current user is not root it will ask for the user password for dodoSUDO user privilage escalation."
+whiptail --title "root or dodoSUDO required" --msgbox "this script needs to run as root, if the current user is not root I will ask for the user password for doSUDO user privilage escalation." 10 60
 
 
 # install required packages 
 #TODO fix so only required packages are installed for each function
 #
-$SUDO apt install whiptail ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
-    
+$doSUDO apt install whiptail ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
 
-function PhP (
-# setup sury.org php repo, get required gpg key, pull in any updates to repo listings
-    #$SUDO sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee -a  /etc/apt/sources.list.d/php.list'
-    #$SUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
-    $SUDO apt-get update
-)
+function PhP {
+    echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ " $(lsb_release -sc) " main" | $doSUDO tee -a /etc/apt/sources.list.d/php.list
+    #$doSUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
+    #$doSUDO apt update
+}
 
 
-function unattended_upgrades (
+function unattended_upgrades {
 # # reconfigure to automatically install updates
-    $SUDO dpkg-reconfigure --priority=low unattended-upgrades
-)
+    $doSUDO dpkg-reconfigure --priority=low unattended-upgrades
+}
 
 
-function brotli (
+function brotli {
     ## install php-ext-brotli
     apt install php-dev -y
     cd /etc/php
@@ -57,16 +55,16 @@ function brotli (
     phpenmod brotli
     apt purge php-dev -y && apt autoremove -y && apt clean
 
-)
+}
 
 
-function mysql (
-    $SUDO apt install mariadb-server -y 
-    $SUDO apt clean
-    $SUDO mysql_secure_installation
-)
+function mysql {
+    $doSUDO apt install mariadb-server -y 
+    $doSUDO apt clean
+    $doSUDO mysql_secure_installation
+}
 
-function nginx (
+function nginx {
     cp $workingDir/configs/default /etc/nginx/sites-available/default
     cp $workingDir/configs/mime.types /etc/nginx/mime.types
     cp $workingDir/configs/nginx.conf /etc/nginx/nginx.conf
@@ -74,9 +72,9 @@ function nginx (
     cp $workingDir/configs/php.ini /etc/php/7.4/fpm/php.ini
     cp $workingDir/configs/wp-supercache.conf /etc/nginx/snippets/wp-supercache.conf
     cp $workingDir/configs/sshd_config /etc/ssh/sshd_config
-)
+}
 
-function wordpress (
+function wordpress {
     # wordpress install
 
     # Create a temporary directory and store its name in a variable.
@@ -100,9 +98,9 @@ function wordpress (
     #change dir to wordpress
     cd wordpress
     #copy files to destination
-    $SUDO cp -rf . $INSTLLOCAL
+    $doSUDO cp -rf . $INSTLLOCAL
     #clean up temp dir
-    $SUDO rm -rf $TEMPD
+    $doSUDO rm -rf $TEMPD
 
     #move to wordpress dir
     cd $instdir
@@ -125,22 +123,21 @@ function wordpress (
     ' wp-config.php
 
     #create uploads folder and set permissions
-    $SUDO mkdir wp-content/uploads
-    $SUDO chmod 775 wp-content/uploads
+    $doSUDO mkdir wp-content/uploads
+    $doSUDO chmod 775 wp-content/uploads
 
     #change ownership
-    $SUDO chown -R www-data:www-data $instdir
+    $doSUDO chown -R www-data:www-data $instdir
     
     #create mysql database
-    $SUDO mysql -e "create database ${DBNAME};"
+    $doSUDO mysql -e "create database ${DBNAME};"
     #create mysql user
-    $SUDO mysql -e "create user '${DBUSER}'@'localhost' identified by '${DBPASS}';"
+    $doSUDO mysql -e "create user '${DBUSER}'@'localhost' identified by '${DBPASS}';"
     #set mysql permissions & flush privileges
-    $SUDO mysql -e "grant all privileges on ${DBNAME}.* to '${DDNAME}'@'localhost';"
-    $SUDO mysql -e "flush privileges;"
+    $doSUDO mysql -e "grant all privileges on ${DBNAME}.* to '${DDNAME}'@'localhost';"
+    $doSUDO mysql -e "flush privileges;"
 
-)
-
+}
 
 
 if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
