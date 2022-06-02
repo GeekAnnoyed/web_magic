@@ -65,13 +65,13 @@ function mysql {
 }
 
 function nginx {
-    cp $workingDir/configs/default /etc/nginx/sites-available/default
-    cp $workingDir/configs/mime.types /etc/nginx/mime.types
-    cp $workingDir/configs/nginx.conf /etc/nginx/nginx.conf
-    cp $workingDir/configs/whitelist.conf /etc/nginx/whitelist.conf
-    cp $workingDir/configs/php.ini /etc/php/7.4/fpm/php.ini
-    cp $workingDir/configs/wp-supercache.conf /etc/nginx/snippets/wp-supercache.conf
-    cp $workingDir/configs/sshd_config /etc/ssh/sshd_config
+    $doSUDO  cp $workingDir/configs/default /etc/nginx/sites-available/default
+    $doSUDO cp $workingDir/configs/mime.types /etc/nginx/mime.types
+    $doSUDO cp $workingDir/configs/nginx.conf /etc/nginx/nginx.conf
+    $doSUDO cp $workingDir/configs/whitelist.conf /etc/nginx/whitelist.conf
+    $doSUDO cp $workingDir/configs/php.ini /etc/php/7.4/fpm/php.ini
+    $doSUDO cp $workingDir/configs/wp-supercache.conf /etc/nginx/snippets/wp-supercache.conf
+    $doSUDO cp $workingDir/configs/sshd_config /etc/ssh/sshd_config
 }
 
 function wordpress {
@@ -105,15 +105,15 @@ function wordpress {
     #move to wordpress dir
     cd $INSTLLOCAL
     #create wp config
-    cp wp-config-sample.php wp-config.php
+    $doSUDO cp wp-config-sample.php wp-config.php
 
     #set database details with perl find and replace
-    perl -pi -e "s/database_name_here/$DBNAME/g" wp-config.php
-    perl -pi -e "s/username_here/$DBUSER/g" wp-config.php
-    perl -pi -e "s/password_here/$DBPASS/g" wp-config.php
+    $doSUDO perl -pi -e "s/database_name_here/$DBNAME/g" wp-config.php
+    $doSUDO perl -pi -e "s/username_here/$DBUSER/g" wp-config.php
+    $doSUDO perl -pi -e "s/password_here/$DBPASS/g" wp-config.php
 
     #set WP salts
-    perl -i -pe'
+    $doSUDO perl -i -pe'
     BEGIN {
         @chars = ("a" .. "z", "A" .. "Z", 0 .. 9);
         push @chars, split //, "!@#$%^&*()-_ []{}<>~\`+=,.;:/?|";
