@@ -168,7 +168,7 @@ if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
     fi
     if [[ "$TASKS" == *"Brotli"* ]]; then
         # execute Brotli function
-        Brotli
+        brotli
     fi
     if [[ "$TASKS" == *"MYSQL"* ]]; then
         # execute MYSQL function
