@@ -1,4 +1,5 @@
 #/bin/bash
+echo "I need whiptail to run $apt install whiptail # then run me again"
 
 SUDO=''
 if (( $EUID != 0 )); then
