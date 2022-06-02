@@ -69,9 +69,8 @@ function nginx {
     $doSUDO cp $workingDir/configs/mime.types /etc/nginx/mime.types
     $doSUDO cp $workingDir/configs/nginx.conf /etc/nginx/nginx.conf
     $doSUDO cp $workingDir/configs/whitelist.conf /etc/nginx/whitelist.conf
-    $doSUDO cp $workingDir/configs/php.ini /etc/php/7.4/fpm/php.ini
     $doSUDO cp $workingDir/configs/wp-supercache.conf /etc/nginx/snippets/wp-supercache.conf
-    $doSUDO cp $workingDir/configs/sshd_config /etc/ssh/sshd_config
+    
 }
 
 function wordpress {
