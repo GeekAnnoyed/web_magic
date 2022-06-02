@@ -22,7 +22,7 @@ trap 'rm -f "$tempfile"' EXIT
 
 function PHP(
 # setup sury.org php repo, get required gpg key, pull in any updates to repo listings
-    $SUDO sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+    $SUDO sh -c "echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list"
     $SUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
     $SUDO apt-get update
 )
@@ -71,13 +71,7 @@ function nginx(
 
 function wordpress(
     # wordpress install
-    # required varibles for wordpress
-    # DBname, DBuser, DBPassword, 
 
-
-
-    #create destination
-    mkdir $instdir
     # Create a temporary directory and store its name in a variable.
     TEMPD=$(mktemp -d)
 
@@ -190,7 +184,7 @@ if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
         DBNAME=$(whiptail --inputbox "What is would you like as your DB name? Leave bank for random" 8 39 --title "database name" 3>&1 1>&2 2>&3)
         DBUSER=$(whiptail --inputbox "What would you like as database username? leave blank for random" 8 39 --title "database username" 3>&1 1>&2 2>&3)
         DBPASS=$(whiptail --inputbox "what wouuld you like as the database password? leave blank for random" 8 39 --title "database pasword" 3>&1 1>&2 2>&3)
-        INSTLLOCAL=$(whiptail --inputbox "Where would you like to install Wordpress?" 8 39 --title "Install location" 3>&1 1>&2 2>&3)
+        INSTLLOCAL=$(whiptail --inputbox "Where would you like to install Wordpress? e.g /var/www/sitedomain" 8 39 --title "Install location" 3>&1 1>&2 2>&3)
         if [[ -n $DBNAME ]];
         then
             
