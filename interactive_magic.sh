@@ -27,7 +27,7 @@ whiptail --title "root or sudo required" --msgbox "this script needs to run as r
 $SUDO apt install whiptail ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
     
 
-function PhP(
+function PhP (
 # setup sury.org php repo, get required gpg key, pull in any updates to repo listings
     #$SUDO sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee -a  /etc/apt/sources.list.d/php.list'
     #$SUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
@@ -35,13 +35,13 @@ function PhP(
 )
 
 
-function unattended_upgrades(
+function unattended_upgrades (
 # # reconfigure to automatically install updates
     $SUDO dpkg-reconfigure --priority=low unattended-upgrades
 )
 
 
-function brotli(
+function brotli (
     ## install php-ext-brotli
     apt install php-dev -y
     cd /etc/php
@@ -60,13 +60,13 @@ function brotli(
 )
 
 
-function mysql(
+function mysql (
     $SUDO apt install mariadb-server -y 
     $SUDO apt clean
     $SUDO mysql_secure_installation
 )
 
-function nginx(
+function nginx (
     cp $workingDir/configs/default /etc/nginx/sites-available/default
     cp $workingDir/configs/mime.types /etc/nginx/mime.types
     cp $workingDir/configs/nginx.conf /etc/nginx/nginx.conf
@@ -76,7 +76,7 @@ function nginx(
     cp $workingDir/configs/sshd_config /etc/ssh/sshd_config
 )
 
-function wordpress(
+function wordpress (
     # wordpress install
 
     # Create a temporary directory and store its name in a variable.
