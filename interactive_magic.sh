@@ -5,6 +5,7 @@ if (( $EUID != 0 )); then
     SUDO='sudo'
 fi
 
+$SUDO apt whiptail install ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
 
 workingDir=$(pwd)
 
