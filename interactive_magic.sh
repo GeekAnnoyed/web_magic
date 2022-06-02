@@ -130,11 +130,11 @@ function wordpress {
     $doSUDO chown -R www-data:www-data $INSTLLOCAL
     
     #create mysql database
-    $doSUDO mysql -e "create database ${DBNAME};"
+    $doSUDO mysql -e "create database $DBNAME;"
     #create mysql user
-    $doSUDO mysql -e "create user '${DBUSER}'@'localhost' identified by '${DBPASS}';"
+    $doSUDO mysql -e "create user '$DBUSER'@'localhost' identified by '$DBPASS';"
     #set mysql permissions & flush privileges
-    $doSUDO mysql -e "grant all privileges on ${DBNAME}.* to '${DDNAME}'@'localhost';"
+    $doSUDO mysql -e "grant all privileges on $DBNAME.* to '$DDNAME'@'localhost';"
     $doSUDO mysql -e "flush privileges;"
 
 }
