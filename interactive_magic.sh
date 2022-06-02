@@ -27,7 +27,7 @@ whiptail --title "root or sudo required" --msgbox "this script needs to run as r
 $SUDO apt install whiptail ssh ntp git curl nginx php-fpm php-mysql php-mbstring php-xml php-gd php-curl php-redis php-zip php-imagick php-bcmath php-intl php-tokenizer redis zip unzip unattended-upgrades apt-listchanges apt-transport-https lsb-release ca-certificates -y
     
 
-function PHP(
+function PhP(
 # setup sury.org php repo, get required gpg key, pull in any updates to repo listings
     #$SUDO sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee -a  /etc/apt/sources.list.d/php.list'
     #$SUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
@@ -167,7 +167,7 @@ if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
     fi
     if [[ "$TASKS" == *"PHP"* ]]; then
         # execute PHP function
-        PHP 
+        PhP 
     fi
     if [[ "$TASKS" == *"Brotli"* ]]; then
         # execute Brotli function
