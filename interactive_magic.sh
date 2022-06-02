@@ -29,12 +29,10 @@ $SUDO apt install whiptail ssh ntp git curl nginx php-fpm php-mysql php-mbstring
 tempfile=$(mktemp)
 trap 'rm -f "$tempfile"' EXIT
 
-
-
 function PHP(
 # setup sury.org php repo, get required gpg key, pull in any updates to repo listings
     #$SUDO sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee -a  /etc/apt/sources.list.d/php.list'
-    $SUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
+    #$SUDO curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
     $SUDO apt-get update
 )
 
