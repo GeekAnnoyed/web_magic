@@ -134,7 +134,7 @@ function wordpress {
     #create mysql user
     $doSUDO mysql -e "create user '$DBUSER'@'localhost' identified by '$DBPASS';"
     #set mysql permissions & flush privileges
-    $doSUDO mysql -e "grant all privileges on $DBNAME.* to '$DDNAME'@'localhost';"
+    $doSUDO mysql -e "grant all privileges on $DBNAME.* to '$DBNAME'@'localhost';"
     $doSUDO mysql -e "flush privileges;"
 
 }
