@@ -137,6 +137,9 @@ function wordpress {
     $doSUDO mysql -e "grant all privileges on $DBNAME.* to '$DBNAME'@'localhost';"
     $doSUDO mysql -e "flush privileges;"
 
+    # Remove nginx default
+
+
 }
 
 
@@ -183,11 +186,14 @@ if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
         DBNAME=''
         DBPASS=''
         DBUSER=''
+        SITEDOMAIN=''
 
         DBNAME=$(whiptail --inputbox "What is would you like as your DB name? Leave bank for random" 8 39 --title "database name" 3>&1 1>&2 2>&3)
         DBUSER=$(whiptail --inputbox "What would you like as database username? leave blank for random" 8 39 --title "database username" 3>&1 1>&2 2>&3)
         DBPASS=$(whiptail --inputbox "what wouuld you like as the database password? leave blank for random" 8 39 --title "database pasword" 3>&1 1>&2 2>&3)
         INSTLLOCAL=$(whiptail --inputbox "Where would you like to install Wordpress? e.g /var/www/sitedomain" 8 39 --title "Install location" 3>&1 1>&2 2>&3)
+        SITEDOMAIN=$(whiptail --inputbox "what is the sits main domain? e.g www.sitedomain.com" 8 39 --title "site domain" 3>&1 1>&2 2>&3)
+        SSL=$(whiptail --title "Should I attempt to set up SSL (Let's encrypt)?" --yesno "Let's encrypt?" 8 78 3>&1 1>&2 2>&3);
         if [[ -n $DBNAME ]];
         then
             
@@ -223,5 +229,7 @@ if TASKS=$(whiptail --title "Install task?" 3>&1 >&2 --output-fd 3 --checklist \
         
 
         wordpress
+
+
     fi
 
